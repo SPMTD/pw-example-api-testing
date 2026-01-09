@@ -1,18 +1,40 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { faker } from "@faker-js/faker";
 
-test("has title", async ({ page }) => {
-	await page.goto("https://playwright.dev/");
+test("Create news article ", async ({request}) => {
+  const tokenResponse = await request.post('https://conduit-api.bondaracademy.com/api/users/login', {
+    data: {"user": { "email": "testAPIuser_Valori@test.com", "password": "testAPIuser_Valori"} }
+  });
 
-	// Expect a title "to contain" a substring.
-	await expect(page).toHaveTitle(/Playwright/);
-});
+  const tokenResponseJSON = await tokenResponse.json();
+  const authToken = `Token ${tokenResponseJSON.user.token}`
 
-test("get started link", async ({ page }) => {
-	await page.goto("https://playwright.dev/");
+  const newsArticleResponse = await request.post('https://conduit-api.bondaracademy.com/api/articles', {
+    data: {
+      "article" : {
+        "title" : `Test Article-${faker.number.int(99999)}`,
+        "description" : `Test Description: ${faker.lorem.paragraph()}`,
+        "body": `Test body: ${faker.lorem.paragraph(5)}`,
+        "tagList": []
+      }
+    },
+    headers: {
+      Authorization: authToken
+    }
+  });
 
-	// Click the get started link.
-	await page.getByRole("link", { name: "Get started" }).click();
+  const newsArticleResponseJSON = await newsArticleResponse.json();
+  expect(newsArticleResponse.status()).toEqual(201);
+  expect(newsArticleResponseJSON.article.title).toContain("Test Article")
 
-	// Expects page to have a heading with the name of Installation.
-	await expect(page.getByRole("heading", { name: "Installation" })).toBeVisible();
+  //Use authToken to login to make sure the first article is not the standard bondaracademy.
+  const articlesResponse = await request.get('https://conduit-api.bondaracademy.com/api/articles?limit=10&offset=0', {
+    headers: {
+      Authorization: authToken
+    }
+  });
+
+  const articleResponseJson = await articlesResponse.json();
+  expect(articlesResponse.status()).toEqual(200);
+  expect(articleResponseJson.articles[0].title).toContain("Test Article")
 });
