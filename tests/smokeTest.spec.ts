@@ -1,24 +1,118 @@
-import {test, expect} from "@playwright/test";
-import { RequestHandler } from "../utils/request-handler";
+import { expect } from "@playwright/test";
+import { test } from "../utils/fixtures";
+import { faker } from "@faker-js/faker";
+
 
 const baseURL: string = "https://conduit-api.bondaracademy.com/api"
 let authToken: string;
 
-test.beforeAll('run before all', async({ request }) => {
-  const tokenResponse = await request.post(`${baseURL}/users/login`, {
-    data: {"user": { "email": "testAPIuser_Valori@test.com", "password": "testAPIuser_Valori"} }
-  });
-
-  const tokenResponseJSON = await tokenResponse.json();
-  authToken = `Token ${tokenResponseJSON.user.token}`
+test.beforeAll('Get Token', async({ api }) => {
+    const tokenResponse = await api
+        .path('/users/login')
+        .body({"user": { "email": "testAPIuser_Valori@test.com", "password": "testAPIuser_Valori"} })
+        .postRequest(200);
+    authToken = `Token ${tokenResponse.user.token}`
 });
 
-test('first smoke test', async({ request }) => {
-    const api = new RequestHandler()
-    api
-        .url(`${baseURL}`)
+test('Get Articles', async({ api }) => {
+    const response = await api
         .path('/articles')
-        .params({limit: 10, offset: 0})
+        .params({ limit: 10, offset: 0, foo: 'bar' })
+        .getRequest(200);
+
+    expect(response.articles.length).toBeLessThanOrEqual(10);
+    expect(response.articlesCount).toEqual(10);
+}); 
+
+test('Get Test Tags', async({ api }) => {
+    const response = await api
+        .path("/tags")
+        .getRequest(200);
+
+    expect(response.tags[0]).toEqual('Test');
+    expect(response.tags.length).toBeLessThanOrEqual(10);
+});
+
+test('Create and Delete article', async({ api }) => {
+    const createArticleResponse = await api
+        .path('/articles')
         .headers({Authorization: authToken})
-        .body({"user": { "email": "testAPIuser_Valori@test.com", "password": "testAPIuser_Valori"} })
+        .body({
+            "article" : {
+                "title" : `Test Article-${faker.number.int(99999)}`,
+                "description" : `Test Description: ${faker.lorem.paragraph()}`,
+                "body": `Test body: ${faker.lorem.paragraph(5)}`,
+                "tagList": []
+            }  
+        })
+        .postRequest(201)
+    expect(createArticleResponse.article.title).toContain('Test Article-')
+    const slugId = createArticleResponse.article.slug;
+    
+    const articlesResponse = await api
+        .path('/articles')
+        .params({ limit: 10, offset: 0, foo: 'bar' })
+        .getRequest(200);
+    expect(articlesResponse.articles[0].title).toContain("Test Article-")
+
+    await api
+        .path(`/articles/${slugId}`)
+        .headers({Authorization: authToken})
+        .deleteRequest(204)
+
+    const articlesResponseTwo = await api
+        .path('/articles')
+        .params({ limit: 10, offset: 0, foo: 'bar' })
+        .getRequest(200);
+    expect(articlesResponseTwo.articles[0].title).not.toContain("Test Article-")
+});
+
+test('Create, Update and Delete article', async({ api }) => {
+    const createArticleResponse = await api
+        .path('/articles')
+        .headers({Authorization: authToken})
+        .body({
+            "article" : {
+                "title" : `Test Article-${faker.number.int(99999)}`,
+                "description" : `Test Description: ${faker.lorem.paragraph()}`,
+                "body": `Test body: ${faker.lorem.paragraph(5)}`,
+                "tagList": []
+            }  
+        })
+        .postRequest(201)
+    expect(createArticleResponse.article.title).toContain('Test Article-')
+    const slugId = createArticleResponse.article.slug;
+    
+    const updateArticleResponse = await api
+        .path(`/articles/${slugId}`)
+        .headers({ Authorization: authToken })
+        .body({
+            "article" : {
+                "title" : `Updated Test Article-${faker.number.int(99999)}`,
+                "description" : `Test Description: ${faker.lorem.paragraph()}`,
+                "body": `Test body: ${faker.lorem.paragraph(5)}`,
+                "tagList": []
+            }  
+        })
+        .putRequest(200)
+
+    expect(updateArticleResponse.article.title).toContain("Updated Test Article-");
+    const newSlugId = updateArticleResponse.article.slug;
+
+    const articlesResponse = await api
+        .path('/articles')
+        .params({ limit: 10, offset: 0, foo: 'bar' })
+        .getRequest(200);
+    expect(articlesResponse.articles[0].title).toContain("Updated Test Article-")
+
+    await api
+        .path(`/articles/${newSlugId}`)
+        .headers({Authorization: authToken})
+        .deleteRequest(204)
+
+    const articlesResponseTwo = await api
+        .path('/articles')
+        .params({ limit: 10, offset: 0, foo: 'bar' })
+        .getRequest(200);
+    expect(articlesResponseTwo.articles[0].title).not.toContain("Updated Test Article-")
 });
