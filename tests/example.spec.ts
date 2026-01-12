@@ -2,6 +2,16 @@ import { expect, test } from "@playwright/test";
 import { faker } from "@faker-js/faker";
 
 const baseURL = "https://conduit-api.bondaracademy.com/api"
+let authToken: string;
+
+test.beforeAll('run before all', async({ request }) => {
+  const tokenResponse = await request.post(`${baseURL}/users/login`, {
+    data: {"user": { "email": "testAPIuser_Valori@test.com", "password": "testAPIuser_Valori"} }
+  });
+
+  const tokenResponseJSON = await tokenResponse.json();
+  authToken = `Token ${tokenResponseJSON.user.token}`
+});
 
 /**
  * Example API tests
@@ -34,13 +44,6 @@ test('Get All Articles', async ({ request }) => {
  * DELETE
  */
 test("Create and delete news article ", async ({request}) => {
-  const tokenResponse = await request.post(`${baseURL}/users/login`, {
-    data: {"user": { "email": "testAPIuser_Valori@test.com", "password": "testAPIuser_Valori"} }
-  });
-
-  const tokenResponseJSON = await tokenResponse.json();
-  const authToken = `Token ${tokenResponseJSON.user.token}`
-
   const newsArticleResponse = await request.post(`${baseURL}/articles`, {
     data: {
       "article" : {
@@ -96,13 +99,6 @@ test("Create and delete news article ", async ({request}) => {
  * GET, POST, PUT, DELETE
  */
 test("Create, update and delete news article ", async ({request}) => {
-  const tokenResponse = await request.post(`${baseURL}/users/login`, {
-    data: {"user": { "email": "testAPIuser_Valori@test.com", "password": "testAPIuser_Valori"} }
-  });
-
-  const tokenResponseJSON = await tokenResponse.json();
-  const authToken = `Token ${tokenResponseJSON.user.token}`
-
   const newsArticleResponse = await request.post(`${baseURL}/articles`, {
     data: {
       "article" : {
