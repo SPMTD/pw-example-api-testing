@@ -1,6 +1,31 @@
 import { expect, test } from "@playwright/test";
 import { faker } from "@faker-js/faker";
 
+const baseURL = "https://conduit-api.bondaracademy.com/api"
+
+/**
+ * Example API tests
+ * Including:
+ * GET
+ */
+test('Get test tags', async ({ request }) => {
+  const tagsResponse = await request.get(`${baseURL}/tags`);
+  const tagsResponseJSON = await tagsResponse.json();
+
+  expect(tagsResponse.status()).toEqual(200);
+  expect(tagsResponseJSON.tags[0]).toEqual('Test');
+  expect(tagsResponseJSON.tags.length).toBeLessThanOrEqual(10);
+});
+
+test('Get All Articles', async ({ request }) => {
+  const allArticlesResponse = await request.get(`${baseURL}/articles?limit=10&offset=0`);
+  const allArticlesResponseJSON = await allArticlesResponse.json();
+
+  expect(allArticlesResponse.status()).toEqual(200);
+  expect(allArticlesResponseJSON.articles.length).toBeLessThanOrEqual(10);
+  expect(allArticlesResponseJSON.articlesCount).toEqual(10);
+});
+
 /**
  * Example API test
  * Including:
@@ -9,14 +34,14 @@ import { faker } from "@faker-js/faker";
  * DELETE
  */
 test("Create and delete news article ", async ({request}) => {
-  const tokenResponse = await request.post('https://conduit-api.bondaracademy.com/api/users/login', {
+  const tokenResponse = await request.post(`${baseURL}/users/login`, {
     data: {"user": { "email": "testAPIuser_Valori@test.com", "password": "testAPIuser_Valori"} }
   });
 
   const tokenResponseJSON = await tokenResponse.json();
   const authToken = `Token ${tokenResponseJSON.user.token}`
 
-  const newsArticleResponse = await request.post('https://conduit-api.bondaracademy.com/api/articles', {
+  const newsArticleResponse = await request.post(`${baseURL}/articles`, {
     data: {
       "article" : {
         "title" : `Test Article-${faker.number.int(99999)}`,
@@ -37,7 +62,7 @@ test("Create and delete news article ", async ({request}) => {
   const slugId = newsArticleResponseJSON.article.slug;
 
   //Use authToken to login to make sure the first article is not the standard bondaracademy.
-  const articlesResponse = await request.get('https://conduit-api.bondaracademy.com/api/articles?limit=10&offset=0', {
+  const articlesResponse = await request.get(`${baseURL}/articles?limit=10&offset=0`, {
     headers: {
       Authorization: authToken
     }
@@ -48,7 +73,7 @@ test("Create and delete news article ", async ({request}) => {
   expect(articleResponseJson.articles[0].title).toContain("Test Article")
 
   //Teardown
-  const deleteArticle = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${slugId}`, {
+  const deleteArticle = await request.delete(`${baseURL}/articles/${slugId}`, {
     headers: {
       Authorization: authToken
     }
@@ -56,7 +81,7 @@ test("Create and delete news article ", async ({request}) => {
   expect(deleteArticle.status()).toEqual(204);
 
   //Validate Teardown
-  const validateTeardown = await request.get(`https://conduit-api.bondaracademy.com/api/articles/${slugId}`, {
+  const validateTeardown = await request.get(`${baseURL}/articles/${slugId}`, {
     headers: {
       Authorization: authToken
     }
@@ -71,14 +96,14 @@ test("Create and delete news article ", async ({request}) => {
  * GET, POST, PUT, DELETE
  */
 test("Create, update and delete news article ", async ({request}) => {
-  const tokenResponse = await request.post('https://conduit-api.bondaracademy.com/api/users/login', {
+  const tokenResponse = await request.post(`${baseURL}/users/login`, {
     data: {"user": { "email": "testAPIuser_Valori@test.com", "password": "testAPIuser_Valori"} }
   });
 
   const tokenResponseJSON = await tokenResponse.json();
   const authToken = `Token ${tokenResponseJSON.user.token}`
 
-  const newsArticleResponse = await request.post('https://conduit-api.bondaracademy.com/api/articles', {
+  const newsArticleResponse = await request.post(`${baseURL}/articles`, {
     data: {
       "article" : {
         "title" : `Test PUT Article-${faker.number.int(99999)}`,
@@ -99,7 +124,7 @@ test("Create, update and delete news article ", async ({request}) => {
   const slugId = newsArticleResponseJSON.article.slug;
 
   //Use authToken to login to make sure the first article is not the standard bondaracademy.
-  const articlesResponse = await request.get('https://conduit-api.bondaracademy.com/api/articles?limit=10&offset=0', {
+  const articlesResponse = await request.get(`${baseURL}/articles?limit=10&offset=0`, {
     headers: {
       Authorization: authToken
     }
@@ -110,7 +135,7 @@ test("Create, update and delete news article ", async ({request}) => {
   expect(articleResponseJson.articles[0].title).toContain("Test PUT Article")
 
   //PUT
-  const updateArticle = await request.put(`https://conduit-api.bondaracademy.com/api/articles/${slugId}`, {
+  const updateArticle = await request.put(`${baseURL}/articles/${slugId}`, {
     data: {
       "article" : {
         "title" : `Test PUT Article Updated-${faker.number.int(99999)}`,
@@ -132,7 +157,7 @@ test("Create, update and delete news article ", async ({request}) => {
   expect(updateArticleResponseJSON.article.slug).toContain(newSlugId)
 
   //Teardown
-  const deleteUpdatedArticle = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${newSlugId}`, {
+  const deleteUpdatedArticle = await request.delete(`${baseURL}/articles/${newSlugId}`, {
     headers: {
       Authorization: authToken
     }
