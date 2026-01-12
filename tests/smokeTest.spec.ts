@@ -1,6 +1,7 @@
 import { expect } from "@playwright/test";
 import { test } from "../utils/fixtures";
 import { faker } from "@faker-js/faker";
+import { APILogger } from "../utils/logger";
 
 
 const baseURL: string = "https://conduit-api.bondaracademy.com/api"
@@ -13,6 +14,15 @@ test.beforeAll('Get Token', async({ api }) => {
         .postRequest(200);
     authToken = `Token ${tokenResponse.user.token}`
 });
+
+test('logger test', () => {
+    const logger = new APILogger()
+    logger.logRequest('GET', 'https://test.com/api', {Authorization: 'token'}, {foo: 'bar'})
+    logger.logResponse(200, {foo: 'bar'})
+    const logs = logger.getRecentLogs();
+
+    console.log(logs);
+})
 
 test('Get Articles', async({ api }) => {
     const response = await api
