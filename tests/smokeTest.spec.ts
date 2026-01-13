@@ -1,16 +1,17 @@
+import { config } from "../api-test.config";
 import { expect } from "../utils/custom-expect";
 import { test } from "../utils/fixtures";
 import { faker } from "@faker-js/faker";
 
-const baseURL: string = "https://conduit-api.bondaracademy.com/api"
 let authToken: string;
 
 test.beforeAll('Get Token', async({ api }) => {
     const tokenResponse = await api
         .path('/users/login')
-        .body({"user": { "email": "testAPIuser_Valori@test.com", "password": "testAPIuser_Valori"} })
+        .body({"user": { "email": config.email, "password": config.password} })
         .postRequest(200);
     authToken = `Token ${tokenResponse.user.token}`
+    console.log(tokenResponse.user);
 });
 
 test('Get Articles', async({ api }) => {

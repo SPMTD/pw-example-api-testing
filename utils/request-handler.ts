@@ -4,7 +4,7 @@ import { APILogger } from "./logger";
 export class RequestHandler {
 
     private request: APIRequestContext;
-    private baseUrl: string;
+    private baseUrl: string | undefined;
     private logger: APILogger;
     private defaultBaseUrl: string;
     private apiPath: string = '';
@@ -49,6 +49,9 @@ export class RequestHandler {
         const response = await this.request.get(url, {
             headers: this.apiHeaders
         });
+
+        this.cleanUpFields();
+
         const actualStatus = response.status();
         const responseJSON = await response.json();
 
@@ -65,6 +68,9 @@ export class RequestHandler {
             headers: this.apiHeaders,
             data: this.apiBody
         });
+
+        this.cleanUpFields();
+
         const actualStatus = response.status();
         const responseJSON = await response.json();
 
@@ -81,6 +87,9 @@ export class RequestHandler {
             headers: this.apiHeaders,
             data: this.apiBody
         });
+
+        this.cleanUpFields();
+
         const actualStatus = response.status();
         const responseJSON = await response.json();
 
@@ -97,6 +106,9 @@ export class RequestHandler {
         const response = await this.request.delete(url, {
             headers: this.apiHeaders
         });
+
+        this.cleanUpFields();
+        
         const actualStatus = response.status(); 
         this.logger.logResponse(actualStatus);
         this.statusCodeValidator(actualStatus, statusCode, this.deleteRequest)
@@ -118,5 +130,13 @@ export class RequestHandler {
             Error.captureStackTrace(error, callingMethod);
             throw error;
         }
+    }
+
+    private cleanUpFields() {
+        this.baseUrl = undefined;
+        this.queryParams = {};
+        this.apiHeaders = {};
+        this.apiBody = {};
+        this.apiPath = "";
     }
 }
