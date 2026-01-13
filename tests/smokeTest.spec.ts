@@ -47,7 +47,8 @@ test('Create and Delete article', async({ api }) => {
     
     const articlesResponse = await api
         .path('/articles')
-        .params({ limit: 10, offset: 0, foo: 'bar' })
+        .headers({Authorization: authToken})
+        .params({ limit: 10, offset: 0})
         .getRequest(200);
     expect(articlesResponse.articles[0].title).toContain("Test Article-")
 
@@ -97,6 +98,7 @@ test('Create, Update and Delete article', async({ api }) => {
 
     const articlesResponse = await api
         .path('/articles')
+        .headers({Authorization: authToken})
         .params({ limit: 10, offset: 0, foo: 'bar' })
         .getRequest(200);
     expect(articlesResponse.articles[0].title).toContain("Updated Test Article-")
@@ -108,6 +110,7 @@ test('Create, Update and Delete article', async({ api }) => {
 
     const articlesResponseTwo = await api
         .path('/articles')
+        .headers({Authorization: authToken})
         .params({ limit: 10, offset: 0, foo: 'bar' })
         .getRequest(200);
     expect(articlesResponseTwo.articles[0].title).not.toContain("Updated Test Article-")
