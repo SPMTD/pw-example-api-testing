@@ -16,7 +16,7 @@ export const test = base.extend<TestOptions>({
         const requestHandler = new RequestHandler(request, config.apiUrl, logger);
         await use(requestHandler);
     },
-    // biome-ignore lint/correctness/noEmptyPattern: <Can be empty.>
+    
     config: async({}, use) => {
         await use(config);
     }

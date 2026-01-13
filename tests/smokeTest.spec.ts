@@ -1,17 +1,13 @@
 import { config } from "../api-test.config";
+import { createToken } from "../helpers/createToken";
 import { expect } from "../utils/custom-expect";
 import { test } from "../utils/fixtures";
 import { faker } from "@faker-js/faker";
 
 let authToken: string;
 
-test.beforeAll('Get Token', async({ api }) => {
-    const tokenResponse = await api
-        .path('/users/login')
-        .body({"user": { "email": config.email, "password": config.password} })
-        .postRequest(200);
-    authToken = `Token ${tokenResponse.user.token}`
-    console.log(tokenResponse.user);
+test.beforeAll('Get Token', async() => {    
+    authToken = await createToken(config.email, config.password)    
 });
 
 test('Get Articles', async({ api }) => {
