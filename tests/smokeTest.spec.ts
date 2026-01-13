@@ -1,4 +1,4 @@
-import { expect } from "@playwright/test";
+import { expect } from "../utils/custom-expect";
 import { test } from "../utils/fixtures";
 import { faker } from "@faker-js/faker";
 
@@ -19,8 +19,8 @@ test('Get Articles', async({ api }) => {
         .params({ limit: 10, offset: 0, foo: 'bar' })
         .getRequest(200);
 
-    expect(response.articles.length).toBeLessThanOrEqual(10);
-    expect(response.articlesCount).toEqual(10);
+    expect(response.articles.length).shouldBeLessThanOrEqual(10);
+    expect(response.articlesCount).shouldEqual(10);
 }); 
 
 test('Get Test Tags', async({ api }) => {
@@ -28,8 +28,8 @@ test('Get Test Tags', async({ api }) => {
         .path("/tags")
         .getRequest(200);
 
-    expect(response.tags[0]).toEqual('Test');
-    expect(response.tags.length).toBeLessThanOrEqual(10);
+    expect(response.tags[0]).shouldEqual('Test');
+    expect(response.tags.length).shouldBeLessThanOrEqual(10);
 });
 
 test('Create and Delete article', async({ api }) => {

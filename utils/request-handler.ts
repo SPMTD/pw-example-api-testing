@@ -112,7 +112,7 @@ export class RequestHandler {
     }
 
     private statusCodeValidator(actualStatus: number, expectedStatus: number, callingMethod: Function) {
-        if(actualStatus !== expectedStatus) {
+        if(actualStatus !== expectedStatus) { 
             const logs = this.logger.getRecentLogs();
             const error = new Error(`Expected status ${expectedStatus} but was instead ${actualStatus}\n\nRecent API Activity: \n ${logs}`);
             Error.captureStackTrace(error, callingMethod);
