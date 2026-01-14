@@ -1,19 +1,12 @@
-import { config } from "../api-test.config";
-import { createToken } from "../helpers/createToken";
 import { expect } from "../utils/custom-expect";
 import { test } from "../utils/fixtures";
 import { faker } from "@faker-js/faker";
 
-let authToken: string;
-
-test.beforeAll('Get Token', async() => {    
-    authToken = await createToken(config.email, config.password)    
-});
-
 test('Get Articles', async({ api }) => {
     const response = await api
         .path('/articles')
-        .params({ limit: 10, offset: 0, foo: 'bar' })
+        .params({ limit: 10, offset: 0})
+        .clearAuth()
         .getRequest(200);
 
     expect(response.articles.length).shouldBeLessThanOrEqual(10);
@@ -32,7 +25,6 @@ test('Get Test Tags', async({ api }) => {
 test('Create and Delete article', async({ api }) => {
     const createArticleResponse = await api
         .path('/articles')
-        .headers({Authorization: authToken})
         .body({
             "article" : {
                 "title" : `Test Article-${faker.number.int(99999)}`,
@@ -47,19 +39,17 @@ test('Create and Delete article', async({ api }) => {
     
     const articlesResponse = await api
         .path('/articles')
-        .headers({Authorization: authToken})
-        .params({ limit: 10, offset: 0})
+        .params({ limit: 10, offset: 0 })
         .getRequest(200);
     expect(articlesResponse.articles[0].title).toContain("Test Article-")
 
     await api
         .path(`/articles/${slugId}`)
-        .headers({Authorization: authToken})
         .deleteRequest(204)
 
     const articlesResponseTwo = await api
         .path('/articles')
-        .params({ limit: 10, offset: 0, foo: 'bar' })
+        .params({ limit: 10, offset: 0 })
         .getRequest(200);
     expect(articlesResponseTwo.articles[0].title).not.toContain("Test Article-")
 });
@@ -67,7 +57,6 @@ test('Create and Delete article', async({ api }) => {
 test('Create, Update and Delete article', async({ api }) => {
     const createArticleResponse = await api
         .path('/articles')
-        .headers({Authorization: authToken})
         .body({
             "article" : {
                 "title" : `Test Article-${faker.number.int(99999)}`,
@@ -82,7 +71,6 @@ test('Create, Update and Delete article', async({ api }) => {
     
     const updateArticleResponse = await api
         .path(`/articles/${slugId}`)
-        .headers({ Authorization: authToken })
         .body({
             "article" : {
                 "title" : `Updated Test Article-${faker.number.int(99999)}`,
@@ -98,20 +86,17 @@ test('Create, Update and Delete article', async({ api }) => {
 
     const articlesResponse = await api
         .path('/articles')
-        .headers({Authorization: authToken})
-        .params({ limit: 10, offset: 0, foo: 'bar' })
+        .params({ limit: 10, offset: 0 })
         .getRequest(200);
     expect(articlesResponse.articles[0].title).toContain("Updated Test Article-")
 
     await api
         .path(`/articles/${newSlugId}`)
-        .headers({Authorization: authToken})
         .deleteRequest(204)
 
     const articlesResponseTwo = await api
         .path('/articles')
-        .headers({Authorization: authToken})
-        .params({ limit: 10, offset: 0, foo: 'bar' })
+        .params({ limit: 10, offset: 0 })
         .getRequest(200);
     expect(articlesResponseTwo.articles[0].title).not.toContain("Updated Test Article-")
 });
