@@ -1,7 +1,6 @@
 import { expect } from "../utils/custom-expect";
 import { test } from "../utils/fixtures";
-import { faker } from "@faker-js/faker";
-import articleRequestPayload from "../request-objects/POST_article.json" with { type: "json" };
+import { getNewRandomArticle } from "../utils/data-generator";
 
 test("Get Articles", async ({ api }) => {
 	const response = await api.path("/articles").params({ limit: 10, offset: 0 }).getRequest(200);
@@ -20,59 +19,69 @@ test("Get Test Tags", async ({ api }) => {
 
 test("Create and Delete article", async ({ api }) => {
 	//Arrange payload
-    const articleRequest = JSON.parse(JSON.stringify(articleRequestPayload));
-	articleRequest.article.title + faker.number.int({ min: 0, max: 99999 });
-	articleRequest.article.description + faker.number.int({ min: 0, max: 99999 });
-	articleRequest.article.body + faker.lorem.paragraph();
+    const articleRequest = getNewRandomArticle();
 
     //Post request
-	const createArticleResponse = await api.path("/articles").body(articleRequest).postRequest(201);
+	const createArticleResponse = await api
+        .path("/articles")
+        .body(articleRequest)
+        .postRequest(201);
 	await expect(createArticleResponse).shouldMatchSchema("articles", "POST_articles");
-	expect(createArticleResponse.article.title).toContain("Test Article-");
+	expect(createArticleResponse.article.title).shouldEqual(articleRequest.article.title);
 	const slugId = createArticleResponse.article.slug;
 
     //Validate
-	const articlesResponse = await api.path("/articles").params({ limit: 10, offset: 0 }).getRequest(200);
-	expect(articlesResponse.articles[0].title).toContain("Test Article-");
+	const articlesResponse = await api
+        .path("/articles")
+        .params({ limit: 10, offset: 0 })
+        .getRequest(200);
+	expect(articlesResponse.articles[0].title).shouldEqual(articleRequest.article.title);
 
     //Delete
-	await api.path(`/articles/${slugId}`).deleteRequest(204);
+	await api
+        .path(`/articles/${slugId}`)
+        .deleteRequest(204);
 
     //Validate deletion (.not example)
-	const articlesResponseTwo = await api.path("/articles").params({ limit: 10, offset: 0 }).getRequest(200);
-	expect(articlesResponseTwo.articles[0].title).not.toContain("Test Article-");
+	const articlesResponseTwo = await api
+        .path("/articles")
+        .params({ limit: 10, offset: 0 })
+        .getRequest(200);
+	expect(articlesResponseTwo.articles[0].title).not.shouldEqual(articleRequest.article.title);
 });
 
 test("Create, Update and Delete article", async ({ api }) => {
 	//Arrange payload
-	const articleRequest = JSON.parse(JSON.stringify(articleRequestPayload));
-	articleRequest.article.title + faker.number.int({ min: 0, max: 99999 });
-	articleRequest.article.description + faker.number.int({ min: 0, max: 99999 });
-	articleRequest.article.body + faker.lorem.paragraph();
+    const articleRequest = getNewRandomArticle();
 
     //POST request
-	const createArticleResponse = await api.path("/articles").body(articleRequest).postRequest(201);
-	expect(createArticleResponse.article.title).toContain("Test Article-");
+	const createArticleResponse = await api
+        .path("/articles")
+        .body(articleRequest)
+        .postRequest(201);
+	expect(createArticleResponse.article.title).shouldEqual(articleRequest.article.title);
 	const slugId = createArticleResponse.article.slug;
 
     //Update article title
-	articleRequest.article.title =
-		"Updated " + articleRequest.article.title + faker.number.int({ min: 0, max: 99999 });
+	const updatedArticleRequest = getNewRandomArticle();
 
     //PUT updated request
-	const updateArticleResponse = await api.path(`/articles/${slugId}`).body(articleRequest).putRequest(200);
+	const updateArticleResponse = await api
+        .path(`/articles/${slugId}`)
+        .body(updatedArticleRequest)
+        .putRequest(200);
 	await expect(updateArticleResponse).shouldMatchSchema("articles", "PUT_articles");
-	expect(updateArticleResponse.article.title).toContain("Updated Test Article-");
+	expect(updateArticleResponse.article.title).shouldEqual(updatedArticleRequest.article.title);
 	const newSlugId = updateArticleResponse.article.slug;
 
     //Validate 
 	const articlesResponse = await api.path("/articles").params({ limit: 10, offset: 0 }).getRequest(200);
-	expect(articlesResponse.articles[0].title).toContain("Updated Test Article-");
+	expect(articlesResponse.articles[0].title).shouldEqual(updatedArticleRequest.article.title);
 
     //Delete
 	await api.path(`/articles/${newSlugId}`).deleteRequest(204);
 
     //Validate deletion
 	const articlesResponseTwo = await api.path("/articles").params({ limit: 10, offset: 0 }).getRequest(200);
-	expect(articlesResponseTwo.articles[0].title).not.toContain("Updated Test Article-");
+	expect(articlesResponseTwo.articles[0].title).not.shouldEqual(updatedArticleRequest.article.title);
 });
