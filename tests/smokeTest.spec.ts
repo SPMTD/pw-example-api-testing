@@ -1,7 +1,6 @@
 import { expect } from "../utils/custom-expect";
 import { test } from "../utils/fixtures";
 import { faker } from "@faker-js/faker";
-import { validateSchema } from "../utils/schema-validator";
 
 test('Get Articles', async({ api }) => {
     const response = await api
