@@ -1,6 +1,7 @@
 import { expect } from "../utils/custom-expect";
 import { test } from "../utils/fixtures";
 import { faker } from "@faker-js/faker";
+import { validateSchema } from "../utils/schema-validator";
 
 test('Get Articles', async({ api }) => {
     const response = await api
@@ -16,7 +17,7 @@ test('Get Test Tags', async({ api }) => {
     const response = await api
         .path("/tags")
         .getRequest(200);
-
+    await validateSchema('tags', 'GET_tags')
     expect(response.tags[0]).shouldEqual('Test');
     expect(response.tags.length).shouldBeLessThanOrEqual(10);
 });
