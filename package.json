@@ -13,6 +13,7 @@
     "@playwright/test": "^1.55.1",
     "@types/node": "^24.6.0",
     "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "date-fns": "^4.1.0",
     "genson-js": "^0.0.8",
     "typescript": "^5.9.3"
