@@ -6,14 +6,14 @@ import { getNewRandomArticle } from "../utils/data-generator";
 test("Get Articles", async ({ api }) => {
 	const response = await api.path("/articles").params({ limit: 10, offset: 0 }).getRequest(200);
 
-	await expect(response).shouldMatchSchema("articles", "GET_articles", true);
+	await expect(response).shouldMatchSchema("articles", "GET_articles");
 	expect(response.articles.length).shouldBeLessThanOrEqual(10);
 	expect(response.articlesCount).shouldEqual(10);
 });
 
 test("Get Test Tags", async ({ api }) => {
 	const response = await api.path("/tags").getRequest(200);
-	await expect(response).shouldMatchSchema("tags", "GET_tags", true);
+	await expect(response).shouldMatchSchema("tags", "GET_tags");
 	expect(response.tags[0]).shouldEqual("Test");
 	expect(response.tags.length).shouldBeLessThanOrEqual(10);
 });
@@ -60,6 +60,7 @@ test("Create, Update and Delete article", async ({ api }) => {
         .path("/articles")
         .body(articleRequest)
         .postRequest(201);
+	await expect(createArticleResponse).shouldMatchSchema("articles", "POST_articles");
 	expect(createArticleResponse.article.title).shouldEqual(articleRequest.article.title);
 	const slugId = createArticleResponse.article.slug;
 

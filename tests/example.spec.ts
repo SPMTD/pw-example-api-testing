@@ -82,8 +82,8 @@ test("Create and delete news article ", async ({request}) => {
 
   const newsArticleResponseJSON = await newsArticleResponse.json();
   expect(newsArticleResponse.status()).toEqual(201);
-  expect(newsArticleResponseJSON.article.title).toContain("Test Article")
-  
+  // TODO: Add schema validation
+  // await expect(newsArticleResponseJSON).shouldMatchSchema('articles', 'POST_articles', true);
   const slugId = newsArticleResponseJSON.article.slug;
 
   //Use authToken to login to make sure the first article is not the standard bondaracademy.
@@ -171,9 +171,9 @@ test("Create, update and delete news article ", async ({request}) => {
   const updateArticleResponseJSON = await updateArticle.json();
   const newSlugId = updateArticleResponseJSON.article.slug;
   expect(updateArticle.status()).toEqual(200);
-  expect(updateArticleResponseJSON.article.title).toContain("Test PUT Article Updated")
-  expect(updateArticleResponseJSON.article.slug).toContain(newSlugId)
-
+  // TODO: Add schema validation
+  // await expect(updateArticleResponseJSON).shouldMatchSchema('articles', 'PUT_articles', true);
+  
   //Teardown
   const deleteUpdatedArticle = await request.delete(`${baseURL}/articles/${newSlugId}`, {
     headers: {

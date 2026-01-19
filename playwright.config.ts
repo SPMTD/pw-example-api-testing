@@ -32,8 +32,7 @@ export default defineConfig({
   projects: [
     {
       name: 'api-testing',
-      testMatch: 'example*',
-      dependencies: ['smoke-tests']
+      testMatch: 'example*'      
     },
     {
       name: 'smoke-tests',
