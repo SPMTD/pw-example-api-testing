@@ -2,6 +2,7 @@ import { expect } from "../utils/custom-expect";
 import { test } from "../utils/fixtures";
 import { getNewRandomArticle } from "../utils/data-generator";
 
+
 test("Get Articles", async ({ api }) => {
 	const response = await api.path("/articles").params({ limit: 10, offset: 0 }).getRequest(200);
 

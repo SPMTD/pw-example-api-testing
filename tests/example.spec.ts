@@ -13,6 +13,28 @@ test.beforeAll('run before all', async({ request }) => {
   authToken = `Token ${tokenResponseJSON.user.token}`
 });
 
+test('Delete Article', async ({ request }) => {
+  //Get articles for user
+  const userArticlesResponse = await request.get(`${baseURL}/articles?author=testAPIuser_Valori`, {
+    headers: {
+      Authorization: authToken
+    }
+  });
+
+  const userArticlesResponseJSON = await userArticlesResponse.json();
+  expect(userArticlesResponse.status()).toEqual(200);
+
+  //Delete each article found
+  for (const article of userArticlesResponseJSON.articles) {
+    const deleteArticleResponse = await request.delete(`${baseURL}/articles/${article.slug}`, {
+      headers: {
+        Authorization: authToken
+      }
+    });
+    expect(deleteArticleResponse.status()).toEqual(204);
+  }
+});
+
 /**
  * Example API tests
  * Including:
