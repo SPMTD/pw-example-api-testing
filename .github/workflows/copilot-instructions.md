@@ -103,7 +103,7 @@ test('Test Description', async ({ api }) => {
 - Do not assign response for `deleteRequest()`
 
 ### When creating POST or PUT requests
-- Save request objects into [request-objects](../request-objects) folder
+- Save request objects into [request-objects](../../request-objects) folder
 - Request object file naming pattern `[method]-[endpoint].json`
 - Import request object file into the test. Example: `import articleRequestPayload from '../request-objects/POST-article.json'`
 - Create a clone of imported request object for every test that needs it using `structuredClone()`. Example: `const articleRequest = structuredClone(articleRequestPayload)`
