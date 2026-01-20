@@ -52,6 +52,13 @@ export class RequestHandler {
         return this;
     }
 
+    /**
+     * Perform a GET request using the constructed URL and headers, log activity, and
+     * return the parsed JSON body. Validates the HTTP status matches `statusCode`.
+     * @param statusCode - Expected HTTP status code for the request.
+     * @returns Parsed JSON response body.
+     * @throws Error with recent API logs when the status does not match.
+     */
     async getRequest(statusCode: number) {
         let responseJSON : any;
 
@@ -71,6 +78,13 @@ export class RequestHandler {
         return responseJSON;
     }
 
+    /**
+     * Perform a POST request using the configured body and headers, log activity, and
+     * return the parsed JSON body. Validates the HTTP status matches `statusCode`.
+     * @param statusCode - Expected HTTP status code for the request.
+     * @returns Parsed JSON response body.
+     * @throws Error with recent API logs when the status does not match.
+     */
     async postRequest(statusCode: number) {
         let responseJSON : any;
 
@@ -94,6 +108,13 @@ export class RequestHandler {
         return responseJSON;
     }
 
+    /**
+     * Perform a PUT request using the configured body and headers, log activity, and
+     * return the parsed JSON body. Validates the HTTP status matches `statusCode`.
+     * @param statusCode - Expected HTTP status code for the request.
+     * @returns Parsed JSON response body.
+     * @throws Error with recent API logs when the status does not match.
+     */
     async putRequest(statusCode: number) {
         let responseJSON : any;
 
@@ -117,6 +138,12 @@ export class RequestHandler {
         return responseJSON;
     }
 
+    /**
+     * Perform a DELETE request to the constructed URL, log activity, and validate
+     * the HTTP status matches `statusCode`.
+     * @param statusCode - Expected HTTP status code for the request.
+     * @throws Error with recent API logs when the status does not match.
+     */
     async deleteRequest(statusCode: number) {
         const url = this.getUrl();
         await test.step(`DELETE request to: ${url}`, async() => {this.logger.logRequest('PUT', url, this.getHeaders());

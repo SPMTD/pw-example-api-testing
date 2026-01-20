@@ -8,6 +8,16 @@ const SCHEMA_BASE_PATH = "./response-schemas";
 const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
 
+/**
+ * Validate a response object against a stored JSON schema.
+ * @summary Reads the schema at `response-schemas/<dirName>/<fileName>_schema.json`,
+ * optionally generates it, and validates `responseBody` with AJV.
+ * @param dirName - Folder name under `response-schemas` matching the endpoint (e.g., "tags").
+ * @param fileName - Base schema filename without `_schema.json` (e.g., "GET_tags").
+ * @param responseBody - The actual response object to validate.
+ * @param createSchemaFlag - If true, generates a new schema file from `responseBody` before validating.
+ * @throws Error when schema cannot be read/created or validation fails (includes AJV errors).
+ */
 export async function validateSchema(
 	dirName: string,
 	fileName: string,
@@ -36,7 +46,7 @@ async function LoadSchema(schemaPath: string) {
 	try {
 		const schemaContent = await fs.readFile(schemaPath, "utf-8");
 		return JSON.parse(schemaContent);
-	} catch (error) {
+	} catch (error: any) {
 		throw new Error(`Failed to read the schema file: ${error.message}`);
 	}
 }
@@ -46,7 +56,7 @@ async function generateNewSchema(responseBody: object, schemaPath: string) {
 		const generatedSchema = createSchema(responseBody);
 		await fs.mkdir(path.dirname(schemaPath), { recursive: true });
 		await fs.writeFile(schemaPath, JSON.stringify(generatedSchema, null, 4));
-	} catch (error) {
+	} catch (error: any) {
 		throw new Error(`Failed to create schema file: ${error.message}`);
 	}
 }

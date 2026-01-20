@@ -18,6 +18,13 @@ declare global {
 	}
 }
 export const expect = baseExpect.extend({
+	/**
+	 * Async matcher that validates the received object against a JSON schema.
+	 * @param received - The received response object to validate.
+	 * @param dirName - Folder under `response-schemas` matching the endpoint (e.g., "tags").
+	 * @param fileName - Base schema filename without `_schema.json` (e.g., "GET_tags").
+	 * @param createSchemaFlag - Optional; when true, generates the schema file before validating.
+	 */
 	async shouldMatchSchema(received: any, dirName: string, fileName: string, createSchemaFlag: boolean = false) {
 		let pass: boolean;
 		let message: string = "";
