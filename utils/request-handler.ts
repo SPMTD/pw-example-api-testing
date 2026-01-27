@@ -1,4 +1,4 @@
-import { APIRequestContext } from "@playwright/test";
+import { APIRequestContext, Route } from "@playwright/test";
 import { APILogger } from "./logger";
 import { test } from "@playwright/test";
 
@@ -52,6 +52,9 @@ export class RequestHandler {
         return this;
     }
 
+    route(url: string|RegExp|((url: URL) => boolean), handler: ((route: Route, request: Request) => Promise<any>|any), options?: {
+    times?: number; }) {}
+    
     /**
      * Perform a GET request using the constructed URL and headers, log activity, and
      * return the parsed JSON body. Validates the HTTP status matches `statusCode`.
