@@ -26,6 +26,12 @@ test("HAR Flow - Create Article with Comments", async ({ api }) => {
         .postRequest(200);
     await expect(createCommentResponse).shouldMatchSchema("articles", "POST_article_comment", true);
     const commentId = createCommentResponse.comment.id;
+    
+    // Step 5: Re-fetch comments to validate created comment exists
+    const getCommentsResponseAfter = await api.path(`/articles/${articleSlug}/comments`).getRequest(200);
+    await expect(getCommentsResponseAfter).shouldMatchSchema("articles", "GET_article_comments", true);
+    const foundComment = getCommentsResponseAfter.comments.find((c: any) => c.id === commentId || c.body === commentRequest.comment.body);
+    expect(!!foundComment).shouldEqual(true);
 
     // small sanity checks using extracted values
     expect(typeof articleSlug).shouldEqual("string");
